@@ -1,9 +1,11 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.staticfiles import StaticFiles
+from pathlib import Path
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from database import get_db_connection
 
-app = FastAPI()
+app = FastAPI(title="CoalGuard AI API", version="1.0.0")
 
 app.add_middleware(
     CORSMiddleware,
@@ -24,11 +26,9 @@ class LoginRequest(BaseModel):
 # -------------------------
 # Home API
 # -------------------------
-@app.get("/")
-def home():
-    return {
-        "message": "CoalGuard Backend is running"
-    }
+@app.get("/api/health")
+def health():
+    return {"status": "ok", "service": "CoalGuard AI"}
 
 
 # -------------------------
@@ -328,98 +328,6 @@ def create_alert(data: AlertRequest):
         "message": "Alert created successfully",
         "alert_id": alert_id,
         "read_status": False
-    }
-# -------------------------
-# Corrective Action Request
-# -------------------------
-class CorrectiveActionRequest(BaseModel):
-    violation_id: int
-    assigned_to: int | None = None
-    description: str = ""
-    deadline: str | None = None
-
-
-# -------------------------
-# Create Corrective Action
-# -------------------------
-@app.post("/api/actions")
-def create_action(data: CorrectiveActionRequest):
-
-    conn = get_db_connection()
-    cursor = conn.cursor()
-
-    cursor.execute("""
-        INSERT INTO corrective_actions
-        (violation_id, assigned_to, description, deadline)
-        VALUES (%s, %s, %s, %s)
-        RETURNING id
-    """, (
-        data.violation_id,
-        data.assigned_to,
-        data.description,
-        data.deadline
-    ))
-
-    action_id = cursor.fetchone()[0]
-
-    conn.commit()
-
-    cursor.close()
-    conn.close()
-
-    return {
-        "message": "Corrective action created successfully",
-        "action_id": action_id,
-        "status": "PENDING"
-    }
-# -------------------------
-# Update Corrective Action
-# -------------------------
-class ActionUpdateRequest(BaseModel):
-    status: str
-    proof_url: str = ""
-    verified_by: int | None = None
-
-
-@app.put("/api/actions/{action_id}")
-def update_action(action_id: int, data: ActionUpdateRequest):
-
-    conn = get_db_connection()
-    cursor = conn.cursor()
-
-    cursor.execute("""
-        UPDATE corrective_actions
-        SET status = %s,
-            proof_url = %s,
-            verified_by = %s
-        WHERE id = %s
-        RETURNING id, status
-    """, (
-        data.status,
-        data.proof_url,
-        data.verified_by,
-        action_id
-    ))
-
-    action = cursor.fetchone()
-
-    if not action:
-        cursor.close()
-        conn.close()
-        raise HTTPException(
-            status_code=404,
-            detail="Corrective action not found"
-        )
-
-    conn.commit()
-
-    cursor.close()
-    conn.close()
-
-    return {
-        "message": "Corrective action updated successfully",
-        "action_id": action[0],
-        "status": action[1]
     }
 # -------------------------
 # Environmental Record Request
@@ -815,3 +723,9 @@ def combined_risk(mine_id: int):
             "level": overall_level
         }
     }
+
+# =========================================================
+# Serve the responsive frontend from the same backend URL
+# =========================================================
+FRONTEND_DIR = Path(__file__).resolve().parent.parent / "frontend"
+app.mount("/", StaticFiles(directory=str(FRONTEND_DIR), html=True), name="frontend")
