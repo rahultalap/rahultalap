@@ -3,7 +3,7 @@
    Connects Frontend -> FastAPI -> Supabase
 ========================================================= */
 
-const API_BASE = "http://127.0.0.1:8000";
+const API_BASE = window.location.origin;
 
 let currentUser = null;
 let currentMineId = 1;
