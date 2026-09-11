@@ -1,0 +1,1951 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>CoalGuard AI | Smart Governance & Compliance</title>
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+    <!-- Leaflet Map CSS -->
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    >
+
+    <!-- Our CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+
+    <!-- =====================================================
+         LOGIN PAGE
+    ====================================================== -->
+
+    <section id="loginView" class="login-page">
+
+        <!-- Left visual section -->
+        <div class="login-visual">
+
+            <div class="brand-mark large">
+                <span>CG</span>
+            </div>
+
+            <div class="visual-copy">
+
+                <p class="eyebrow">
+                    AI-POWERED SMART GOVERNANCE
+                </p>
+
+                <h1>
+                    CoalGuard <span>AI</span>
+                </h1>
+
+                <p>
+                    Safety and environmental compliance
+                    monitoring for modern coal mine operations.
+                </p>
+
+                <div class="flow-mini">
+
+                    <span>OBSERVE</span>
+                    <i>→</i>
+
+                    <span>REPORT</span>
+                    <i>→</i>
+
+                    <span>ANALYZE</span>
+                    <i>→</i>
+
+                    <span>ACT</span>
+
+                </div>
+
+            </div>
+
+            <div class="visual-grid"></div>
+
+        </div>
+
+
+        <!-- Right login panel -->
+        <div class="login-panel">
+
+            <div class="login-box">
+
+                <div class="brand-row">
+
+                    <div class="brand-mark">
+                        <span>CG</span>
+                    </div>
+
+                    <div>
+                        <strong>CoalGuard</strong>
+                        <small>Smart Compliance Platform</small>
+                    </div>
+
+                </div>
+
+
+                <h2>Welcome back</h2>
+
+                <p class="muted">
+                    Sign in to access your mine operations dashboard.
+                </p>
+
+
+                <form id="loginForm">
+
+                    <label for="email">
+                        Email
+                    </label>
+
+                    <div class="input-wrap">
+
+                        <span>✉</span>
+
+                        <input
+                            id="email"
+                            type="email"
+                            value="manager@coalguard.com"
+                            required
+                        >
+
+                    </div>
+
+
+                    <label for="password">
+                        Password
+                    </label>
+
+                    <div class="input-wrap">
+
+                        <span>••</span>
+
+                        <input
+                            id="password"
+                            type="password"
+                            value="demo123"
+                            required
+                        >
+
+                    </div>
+
+
+                    <button
+                        class="primary-btn full"
+                        type="submit"
+                    >
+                        Sign in
+                        <span>→</span>
+                    </button>
+
+                </form>
+
+
+                <div class="demo-hint">
+
+                    <span>Demo access</span>
+
+                    manager@coalguard.com / demo123
+
+                </div>
+
+            </div>
+
+
+            <footer>
+                CoalGuard AI · SIH26024 Prototype
+            </footer>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         MAIN APPLICATION
+    ====================================================== -->
+
+    <section id="appView" class="app hidden">
+
+
+        <!-- =================================================
+             SIDEBAR
+        ================================================== -->
+
+        <aside class="sidebar">
+
+
+            <!-- Brand -->
+            <div class="side-brand">
+
+                <div class="brand-mark">
+                    <span>CG</span>
+                </div>
+
+                <div>
+
+                    <strong>CoalGuard</strong>
+
+                    <small>
+                        AI Compliance
+                    </small>
+
+                </div>
+
+            </div>
+
+
+            <!-- Active Mine -->
+            <div class="mine-switcher">
+
+                <small>
+                    ACTIVE MINE
+                </small>
+
+                <div>
+
+                    <span class="status-dot"></span>
+
+                    <strong id="mineName">
+                        Mine C
+                    </strong>
+
+                    <span class="chevron">
+                        ⌄
+                    </span>
+
+                </div>
+
+                <small id="mineLocation">
+                    Chhattisgarh
+                </small>
+
+            </div>
+
+
+            <!-- Navigation -->
+            <nav>
+
+                <button
+                    class="nav-item active"
+                    data-section="overview"
+                >
+                    <span>▦</span>
+                    Overview
+                </button>
+
+
+                <button
+                    class="nav-item"
+                    data-section="inspections"
+                >
+                    <span>◉</span>
+                    Inspections
+                </button>
+
+
+                <button
+                    class="nav-item"
+                    data-section="environment"
+                >
+                    <span>♧</span>
+                    Environment
+                </button>
+
+
+                <button
+                    class="nav-item"
+                    data-section="map"
+                >
+                    <span>⌖</span>
+                    Risk Map
+
+                    <b class="nav-badge">
+                        3
+                    </b>
+                </button>
+
+
+                <button
+                    class="nav-item"
+                    data-section="actions"
+                >
+                    <span>✓</span>
+                    Corrective Actions
+
+                    <b class="nav-badge amber">
+                        1
+                    </b>
+                </button>
+
+
+                <button
+                    class="nav-item"
+                    data-section="alerts"
+                >
+                    <span>♢</span>
+                    Alerts
+
+                    <b class="nav-badge red">
+                        2
+                    </b>
+                </button>
+
+            </nav>
+
+
+            <!-- Sidebar Bottom -->
+            <div class="sidebar-bottom">
+
+                <div class="ai-card">
+
+                    <div class="ai-icon">
+                        ✦
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            AI Assistant
+                        </strong>
+
+                        <p>
+                            Insights ready for review
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <button class="nav-item">
+                    <span>⚙</span>
+                    Settings
+                </button>
+
+
+                <button
+                    class="nav-item"
+                    id="logoutBtn"
+                >
+                    <span>↪</span>
+                    Sign out
+                </button>
+
+            </div>
+
+        </aside>
+
+
+
+        <!-- =================================================
+             MAIN CONTENT
+        ================================================== -->
+
+        <main class="main">
+
+
+            <!-- Top Bar -->
+            <header class="topbar">
+
+                <div class="page-title">
+
+                    <span class="mobile-menu">
+                        ☰
+                    </span>
+
+                    <div>
+
+                        <p id="sectionKicker">
+                            COMMAND CENTER
+                        </p>
+
+                        <h2 id="sectionTitle">
+                            Mine Overview
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="top-actions">
+
+                    <div class="sync">
+
+                        <span class="pulse"></span>
+
+                        System online
+
+                    </div>
+
+
+                    <button
+                        class="icon-btn"
+                        id="notificationBtn"
+                    >
+
+                        ♢
+
+                        <b>2</b>
+
+                    </button>
+
+
+                    <div class="user-chip">
+
+                        <div
+                            class="avatar"
+                            id="avatar"
+                        >
+                            RM
+                        </div>
+
+                        <div>
+
+                            <strong id="userName">
+                                Raj Manager
+                            </strong>
+
+                            <small id="userRole">
+                                MANAGER
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </header>
+
+
+
+            <!-- =================================================
+                 PAGE CONTENT
+            ================================================== -->
+
+            <div class="content">
+
+
+                <!-- =================================================
+                     OVERVIEW
+                ================================================== -->
+
+                <section
+                    id="overview"
+                    class="section active-section"
+                >
+
+                    <div class="welcome-row">
+
+                        <div>
+
+                            <p class="eyebrow">
+                                THURSDAY · 11 SEPTEMBER 2026
+                            </p>
+
+                            <h1 id="greeting">
+                                Hello
+                            </h1>
+
+                            <p class="muted">
+                                Here’s the latest compliance picture
+                                for Mine C.
+                            </p>
+
+                        </div>
+
+
+                        <button
+                            class="primary-btn"
+                            id="newInspectionBtn"
+                        >
+                            ＋ New Inspection
+                        </button>
+
+                    </div>
+
+
+
+                    <!-- Main alert -->
+                    <div class="hero-alert">
+
+                        <div class="hero-icon">
+                            !
+                        </div>
+
+                        <div class="hero-copy">
+
+                            <span class="tag danger">
+                                ATTENTION REQUIRED
+                            </span>
+
+                            <h3>
+                                Section B needs immediate attention
+                            </h3>
+
+                            <p>
+                                Repeated PPE non-compliance detected.
+                                A new <strong>No Helmet</strong>
+                                observation is open and requires
+                                corrective action.
+                            </p>
+
+                        </div>
+
+
+                        <button
+                            class="outline-btn"
+                            data-section-jump="inspections"
+                        >
+                            Review issue →
+                        </button>
+
+                    </div>
+
+
+
+                    <!-- KPI Cards -->
+                    <div class="kpi-grid">
+
+
+                        <div class="kpi-card">
+
+                            <div class="kpi-top">
+
+                                <span>
+                                    Active Violations
+                                </span>
+
+                                <span class="kpi-icon red-bg">
+                                    !
+                                </span>
+
+                            </div>
+
+                            <div class="kpi-value">
+                                1
+                            </div>
+
+                            <div class="kpi-foot danger-text">
+                                1 high priority
+                                <span>↗</span>
+                            </div>
+
+                        </div>
+
+
+
+                        <div class="kpi-card">
+
+                            <div class="kpi-top">
+
+                                <span>
+                                    Open Actions
+                                </span>
+
+                                <span class="kpi-icon amber-bg">
+                                    ◷
+                                </span>
+
+                            </div>
+
+                            <div class="kpi-value">
+                                1
+                            </div>
+
+                            <div class="kpi-foot amber-text">
+                                Due for verification
+                            </div>
+
+                        </div>
+
+
+
+                        <div class="kpi-card">
+
+                            <div class="kpi-top">
+
+                                <span>
+                                    Environmental
+                                </span>
+
+                                <span class="kpi-icon blue-bg">
+                                    ♧
+                                </span>
+
+                            </div>
+
+                            <div class="kpi-value">
+                                3
+                            </div>
+
+                            <div class="kpi-foot danger-text">
+                                Active parameter breaches
+                            </div>
+
+                        </div>
+
+
+
+                        <div class="kpi-card">
+
+                            <div class="kpi-top">
+
+                                <span>
+                                    Compliance Trend
+                                </span>
+
+                                <span class="kpi-icon green-bg">
+                                    ↗
+                                </span>
+
+                            </div>
+
+                            <div class="kpi-value">
+                                Stable
+                            </div>
+
+                            <div class="kpi-foot success-text">
+                                Monitoring continuously
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- Dashboard row -->
+                    <div class="dashboard-grid">
+
+
+                        <!-- Map -->
+                        <div class="panel map-panel">
+
+                            <div class="panel-head">
+
+                                <div>
+
+                                    <h3>
+                                        Mine Risk Map
+                                    </h3>
+
+                                    <p>
+                                        Operational observations
+                                        & high-priority locations
+                                    </p>
+
+                                </div>
+
+
+                                <button
+                                    class="text-btn"
+                                    data-section-jump="map"
+                                >
+                                    Open map ↗
+                                </button>
+
+                            </div>
+
+
+                            <div
+                                id="miniMap"
+                                class="map"
+                            ></div>
+
+
+                            <div class="map-legend">
+
+                                <span>
+                                    <i class="legend-dot red"></i>
+                                    High priority
+                                </span>
+
+                                <span>
+                                    <i class="legend-dot amber"></i>
+                                    Observation
+                                </span>
+
+                                <span>
+                                    <i class="legend-dot green"></i>
+                                    Normal
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <!-- Environmental -->
+                        <div class="panel">
+
+                            <div class="panel-head">
+
+                                <div>
+
+                                    <h3>
+                                        Environmental Compliance
+                                    </h3>
+
+                                    <p>
+                                        Latest field records
+                                    </p>
+
+                                </div>
+
+
+                                <button
+                                    class="text-btn"
+                                    data-section-jump="environment"
+                                >
+                                    View all
+                                </button>
+
+                            </div>
+
+
+                            <div
+                                class="env-list"
+                                id="envOverview"
+                            ></div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- Lower dashboard -->
+                    <div class="dashboard-grid lower">
+
+
+                        <!-- Violations -->
+                        <div class="panel">
+
+                            <div class="panel-head">
+
+                                <div>
+
+                                    <h3>
+                                        Priority Violations
+                                    </h3>
+
+                                    <p>
+                                        Items requiring operational response
+                                    </p>
+
+                                </div>
+
+
+                                <button
+                                    class="text-btn"
+                                    data-section-jump="inspections"
+                                >
+                                    View all
+                                </button>
+
+                            </div>
+
+
+                            <div
+                                id="violationTable"
+                                class="table-wrap"
+                            ></div>
+
+                        </div>
+
+
+
+                        <!-- Alerts -->
+                        <div class="panel">
+
+                            <div class="panel-head">
+
+                                <div>
+
+                                    <h3>
+                                        Recent Alerts
+                                    </h3>
+
+                                    <p>
+                                        Manager notifications
+                                    </p>
+
+                                </div>
+
+
+                                <button
+                                    class="text-btn"
+                                    data-section-jump="alerts"
+                                >
+                                    View all
+                                </button>
+
+                            </div>
+
+
+                            <div
+                                id="alertList"
+                                class="alert-list"
+                            ></div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- =================================================
+                     INSPECTIONS
+                ================================================== -->
+
+                <section
+                    id="inspections"
+                    class="section"
+                >
+
+                    <div class="section-intro">
+
+                        <div>
+
+                            <p class="eyebrow">
+                                FIELD OPERATIONS
+                            </p>
+
+                            <h1>
+                                Inspections & Violations
+                            </h1>
+
+                            <p class="muted">
+                                Capture observations, evidence and
+                                location data from the field.
+                            </p>
+
+                        </div>
+
+
+                        <button
+                            class="primary-btn"
+                            id="startInspectionBtn"
+                        >
+                            ＋ Start Inspection
+                        </button>
+
+                    </div>
+
+
+
+                    <!-- Workflow -->
+                    <div class="panel workflow">
+
+
+                        <div class="workflow-step done">
+
+                            <span>1</span>
+
+                            <div>
+
+                                <strong>
+                                    Observe
+                                </strong>
+
+                                <small>
+                                    Field inspection
+                                </small>
+
+                            </div>
+
+                        </div>
+
+
+                        <i>→</i>
+
+
+                        <div class="workflow-step done">
+
+                            <span>2</span>
+
+                            <div>
+
+                                <strong>
+                                    Report
+                                </strong>
+
+                                <small>
+                                    Evidence + GPS
+                                </small>
+
+                            </div>
+
+                        </div>
+
+
+                        <i>→</i>
+
+
+                        <div class="workflow-step active">
+
+                            <span>3</span>
+
+                            <div>
+
+                                <strong>
+                                    Analyze
+                                </strong>
+
+                                <small>
+                                    AI risk engine
+                                </small>
+
+                            </div>
+
+                        </div>
+
+
+                        <i>→</i>
+
+
+                        <div class="workflow-step">
+
+                            <span>4</span>
+
+                            <div>
+
+                                <strong>
+                                    Act
+                                </strong>
+
+                                <small>
+                                    Corrective action
+                                </small>
+
+                            </div>
+
+                        </div>
+
+
+                        <i>→</i>
+
+
+                        <div class="workflow-step">
+
+                            <span>5</span>
+
+                            <div>
+
+                                <strong>
+                                    Verify
+                                </strong>
+
+                                <small>
+                                    Manager review
+                                </small>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- Open violation -->
+                    <div class="panel">
+
+                        <div class="panel-head">
+
+                            <div>
+
+                                <h3>
+                                    Open violation
+                                </h3>
+
+                                <p>
+                                    Latest safety observation
+                                    from Section B
+                                </p>
+
+                            </div>
+
+
+                            <span class="tag danger">
+                                HIGH PRIORITY
+                            </span>
+
+                        </div>
+
+
+
+                        <div class="violation-detail">
+
+
+                            <div class="evidence-placeholder">
+
+                                <div class="evidence-icon">
+                                    ⌁
+                                </div>
+
+                                <span>
+                                    Inspection evidence
+                                </span>
+
+                                <small>
+                                    Photo captured by inspector
+                                </small>
+
+                            </div>
+
+
+
+                            <div class="detail-grid">
+
+
+                                <div>
+
+                                    <small>
+                                        VIOLATION
+                                    </small>
+
+                                    <strong>
+                                        No Helmet / PPE
+                                    </strong>
+
+                                </div>
+
+
+                                <div>
+
+                                    <small>
+                                        LOCATION
+                                    </small>
+
+                                    <strong>
+                                        Section B
+                                    </strong>
+
+                                </div>
+
+
+                                <div>
+
+                                    <small>
+                                        REPORTED BY
+                                    </small>
+
+                                    <strong>
+                                        Rahul Inspector
+                                    </strong>
+
+                                </div>
+
+
+                                <div>
+
+                                    <small>
+                                        STATUS
+                                    </small>
+
+                                    <strong class="danger-text">
+                                        OPEN
+                                    </strong>
+
+                                </div>
+
+
+                                <div>
+
+                                    <small>
+                                        GPS
+                                    </small>
+
+                                    <strong>
+                                        21.2787, 81.8661
+                                    </strong>
+
+                                </div>
+
+
+                                <div>
+
+                                    <small>
+                                        AI OBSERVATION
+                                    </small>
+
+                                    <strong>
+                                        Helmet not detected
+                                    </strong>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <div class="detail-actions">
+
+                            <button
+                                class="primary-btn"
+                                id="createActionBtn"
+                            >
+                                Create Corrective Action
+                            </button>
+
+
+                            <button
+                                class="outline-btn"
+                                data-section-jump="map"
+                            >
+                                View on map
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- =================================================
+                     ENVIRONMENT
+                ================================================== -->
+
+                <section
+                    id="environment"
+                    class="section"
+                >
+
+                    <div class="section-intro">
+
+                        <div>
+
+                            <p class="eyebrow">
+                                ENVIRONMENTAL COMPLIANCE
+                            </p>
+
+                            <h1>
+                                Environmental Monitoring
+                            </h1>
+
+                            <p class="muted">
+                                Historical field records for Mine C.
+                                Demo values are clearly treated as
+                                prototype data.
+                            </p>
+
+                        </div>
+
+
+                        <button
+                            class="outline-btn"
+                            id="refreshEnv"
+                        >
+                            ↻ Refresh data
+                        </button>
+
+                    </div>
+
+
+
+                    <!-- Environment cards -->
+                    <div class="env-big-grid">
+
+
+                        <div class="env-stat">
+
+                            <div class="env-circle dust">
+                                D
+                            </div>
+
+                            <div>
+
+                                <span>
+                                    Dust / Air Quality
+                                </span>
+
+                                <strong id="dustStatus">
+                                    BREACH
+                                </strong>
+
+                                <small id="dustLatest">
+                                    82 µg/m³ · above demo threshold
+                                </small>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <div class="env-stat">
+
+                            <div class="env-circle water">
+                                W
+                            </div>
+
+                            <div>
+
+                                <span>
+                                    Water Quality
+                                </span>
+
+                                <strong id="waterStatus">
+                                    BREACH
+                                </strong>
+
+                                <small id="waterLatest">
+                                    67 Index · above demo threshold
+                                </small>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <div class="env-stat">
+
+                            <div class="env-circle noise">
+                                N
+                            </div>
+
+                            <div>
+
+                                <span>
+                                    Noise Level
+                                </span>
+
+                                <strong id="noiseStatus">
+                                    BREACH
+                                </strong>
+
+                                <small id="noiseLatest">
+                                    82 dB · above demo threshold
+                                </small>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- Environmental history -->
+                    <div class="panel">
+
+                        <div class="panel-head">
+
+                            <div>
+
+                                <h3>
+                                    Environmental history
+                                </h3>
+
+                                <p>
+                                    Latest records received by the
+                                    compliance platform
+                                </p>
+
+                            </div>
+
+
+                            <span class="tag info">
+                                MINE C
+                            </span>
+
+                        </div>
+
+
+                        <div
+                            id="envTable"
+                            class="table-wrap"
+                        ></div>
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- =================================================
+                     GIS MAP
+                ================================================== -->
+
+                <section
+                    id="map"
+                    class="section"
+                >
+
+                    <div class="section-intro">
+
+                        <div>
+
+                            <p class="eyebrow">
+                                GEOSPATIAL OPERATIONS
+                            </p>
+
+                            <h1>
+                                Risk & Compliance Map
+                            </h1>
+
+                            <p class="muted">
+                                Location-aware view of mine
+                                observations and priority areas.
+                            </p>
+
+                        </div>
+
+
+                        <div class="map-filter">
+
+                            <button class="filter active">
+                                All
+                            </button>
+
+                            <button class="filter">
+                                High
+                            </button>
+
+                            <button class="filter">
+                                Environment
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="panel full-map-panel">
+
+                        <div
+                            id="fullMap"
+                            class="full-map"
+                        ></div>
+
+
+                        <div class="map-side">
+
+                            <h3>
+                                Priority locations
+                            </h3>
+
+
+                            <div class="location-item high">
+
+                                <i></i>
+
+                                <div>
+
+                                    <strong>
+                                        Section B · No Helmet
+                                    </strong>
+
+                                    <small>
+                                        Safety violation · Open
+                                    </small>
+
+                                </div>
+
+                                <span>
+                                    HIGH
+                                </span>
+
+                            </div>
+
+
+
+                            <div class="location-item high">
+
+                                <i></i>
+
+                                <div>
+
+                                    <strong>
+                                        Dust monitoring point
+                                    </strong>
+
+                                    <small>
+                                        Environmental breach
+                                    </small>
+
+                                </div>
+
+                                <span>
+                                    HIGH
+                                </span>
+
+                            </div>
+
+
+
+                            <div class="location-item amber">
+
+                                <i></i>
+
+                                <div>
+
+                                    <strong>
+                                        Water quality point
+                                    </strong>
+
+                                    <small>
+                                        Environmental breach
+                                    </small>
+
+                                </div>
+
+                                <span>
+                                    MED
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- =================================================
+                     CORRECTIVE ACTIONS
+                ================================================== -->
+
+                <section
+                    id="actions"
+                    class="section"
+                >
+
+                    <div class="section-intro">
+
+                        <div>
+
+                            <p class="eyebrow">
+                                RESPONSE MANAGEMENT
+                            </p>
+
+                            <h1>
+                                Corrective Actions
+                            </h1>
+
+                            <p class="muted">
+                                Track remediation from assignment
+                                through manager verification.
+                            </p>
+
+                        </div>
+
+
+                        <button
+                            class="primary-btn"
+                            id="newActionBtn"
+                        >
+                            ＋ New Action
+                        </button>
+
+                    </div>
+
+
+
+                    <div class="action-board">
+
+
+                        <!-- Pending -->
+                        <div class="panel action-column">
+
+                            <div class="column-title">
+
+                                <span>
+                                    Pending
+                                </span>
+
+                                <b>
+                                    1
+                                </b>
+
+                            </div>
+
+
+                            <div class="action-card">
+
+                                <div class="action-card-top">
+
+                                    <span class="tag warning">
+                                        PENDING
+                                    </span>
+
+                                    <small>
+                                        CA-004
+                                    </small>
+
+                                </div>
+
+
+                                <h3>
+                                    Enforce helmet compliance
+                                    in Section B
+                                </h3>
+
+
+                                <p>
+                                    Re-brief workers and upload
+                                    photographic proof after
+                                    corrective measures.
+                                </p>
+
+
+                                <div class="action-meta">
+
+                                    <span>
+                                        Assigned to
+                                        <strong>
+                                            Raj Manager
+                                        </strong>
+                                    </span>
+
+                                    <span>
+                                        Deadline
+                                        <strong>
+                                            11 Sep 2026
+                                        </strong>
+                                    </span>
+
+                                </div>
+
+
+                                <button
+                                    class="outline-btn small"
+                                    id="resolveActionBtn"
+                                >
+                                    Mark as resolved
+                                </button>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <!-- Verification -->
+                        <div class="panel action-column">
+
+                            <div class="column-title">
+
+                                <span>
+                                    Verification
+                                </span>
+
+                                <b>
+                                    0
+                                </b>
+
+                            </div>
+
+
+                            <div class="empty-state">
+
+                                No actions awaiting verification.
+
+                            </div>
+
+                        </div>
+
+
+
+                        <!-- Completed -->
+                        <div class="panel action-column">
+
+                            <div class="column-title">
+
+                                <span>
+                                    Completed
+                                </span>
+
+                                <b>
+                                    2
+                                </b>
+
+                            </div>
+
+
+                            <div class="completed-row">
+
+                                <span class="check">
+                                    ✓
+                                </span>
+
+                                <div>
+
+                                    <strong>
+                                        PPE compliance briefing
+                                    </strong>
+
+                                    <small>
+                                        Verified 08 Sep 2026
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="completed-row">
+
+                                <span class="check">
+                                    ✓
+                                </span>
+
+                                <div>
+
+                                    <strong>
+                                        Safety signage replacement
+                                    </strong>
+
+                                    <small>
+                                        Verified 06 Sep 2026
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- =================================================
+                     ALERTS
+                ================================================== -->
+
+                <section
+                    id="alerts"
+                    class="section"
+                >
+
+                    <div class="section-intro">
+
+                        <div>
+
+                            <p class="eyebrow">
+                                NOTIFICATIONS & ESCALATION
+                            </p>
+
+                            <h1>
+                                Alerts
+                            </h1>
+
+                            <p class="muted">
+                                Actionable notifications generated
+                                by the compliance workflow.
+                            </p>
+
+                        </div>
+
+
+                        <button
+                            class="outline-btn"
+                            id="markReadBtn"
+                        >
+                            Mark all read
+                        </button>
+
+                    </div>
+
+
+
+                    <div class="panel alert-page-list">
+
+
+                        <!-- Alert 1 -->
+                        <div class="big-alert unread">
+
+                            <div class="alert-symbol danger-bg">
+                                !
+                            </div>
+
+
+                            <div>
+
+                                <span class="tag danger">
+                                    HIGH PRIORITY
+                                </span>
+
+                                <h3>
+                                    New No Helmet violation
+                                    in Section B
+                                </h3>
+
+                                <p>
+                                    Inspector Rahul reported a
+                                    PPE violation. Immediate
+                                    corrective action is recommended.
+                                </p>
+
+                                <small>
+                                    Today · 09:42 AM
+                                </small>
+
+                            </div>
+
+
+                            <button class="text-btn">
+                                Review →
+                            </button>
+
+                        </div>
+
+
+
+                        <!-- Alert 2 -->
+                        <div class="big-alert unread">
+
+                            <div class="alert-symbol amber-bg">
+                                ♧
+                            </div>
+
+
+                            <div>
+
+                                <span class="tag warning">
+                                    ENVIRONMENT
+                                </span>
+
+                                <h3>
+                                    Repeated Dust threshold breach
+                                </h3>
+
+                                <p>
+                                    Dust readings exceeded the
+                                    demo threshold on multiple
+                                    historical records.
+                                </p>
+
+                                <small>
+                                    Today · 08:15 AM
+                                </small>
+
+                            </div>
+
+
+                            <button
+                                class="text-btn"
+                                data-section-jump="environment"
+                            >
+                                View data →
+                            </button>
+
+                        </div>
+
+
+
+                        <!-- Alert 3 -->
+                        <div class="big-alert">
+
+                            <div class="alert-symbol blue-bg">
+                                i
+                            </div>
+
+
+                            <div>
+
+                                <span class="tag info">
+                                    SYSTEM
+                                </span>
+
+                                <h3>
+                                    Daily compliance summary generated
+                                </h3>
+
+                                <p>
+                                    Mine C operational records have
+                                    been synchronized successfully.
+                                </p>
+
+                                <small>
+                                    Yesterday · 06:00 PM
+                                </small>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+            </div>
+
+        </main>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         INSPECTION MODAL
+    ====================================================== -->
+
+    <div
+        id="inspectionModal"
+        class="modal-backdrop hidden"
+    >
+
+        <div class="modal">
+
+            <button class="modal-close">
+                ×
+            </button>
+
+
+            <p class="eyebrow">
+                FIELD INSPECTION
+            </p>
+
+
+            <h2>
+                Start a new inspection
+            </h2>
+
+
+            <p class="muted">
+                Create an observation that will flow through
+                the compliance engine.
+            </p>
+
+
+            <form id="inspectionForm">
+
+
+                <label for="inspectionType">
+                    Inspection type
+                </label>
+
+                <select id="inspectionType">
+
+                    <option>
+                        Safety
+                    </option>
+
+                    <option>
+                        Environmental
+                    </option>
+
+                    <option>
+                        Compliance
+                    </option>
+
+                </select>
+
+
+
+                <label for="inspectionDescription">
+                    Observation
+                </label>
+
+                <textarea
+                    id="inspectionDescription"
+                    placeholder="Describe what was observed..."
+                ></textarea>
+
+
+
+                <div class="two-col">
+
+
+                    <div>
+
+                        <label for="inspectionLat">
+                            Latitude
+                        </label>
+
+                        <input
+                            id="inspectionLat"
+                            value="21.2787"
+                            type="number"
+                            step="any"
+                        >
+
+                    </div>
+
+
+                    <div>
+
+                        <label for="inspectionLng">
+                            Longitude
+                        </label>
+
+                        <input
+                            id="inspectionLng"
+                            value="81.8661"
+                            type="number"
+                            step="any"
+                        >
+
+                    </div>
+
+                </div>
+
+
+
+                <button
+                    class="primary-btn full"
+                    type="submit"
+                >
+                    Submit inspection →
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         JAVASCRIPT LIBRARIES
+    ====================================================== -->
+
+    <!-- Leaflet -->
+    <script
+        src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+    </script>
+
+
+    <!-- Our JavaScript -->
+    <script src="app.js"></script>
+
+</body>
+</html>
