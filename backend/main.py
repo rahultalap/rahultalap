@@ -5,7 +5,20 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from database import get_db_connection
 
-app = FastAPI(title="CoalGuard AI API", version="1.0.0")
+
+# =========================================================
+# FASTAPI APP
+# =========================================================
+
+app = FastAPI(
+    title="CoalGuard AI API",
+    version="1.0.0"
+)
+
+
+# =========================================================
+# CORS
+# =========================================================
 
 app.add_middleware(
     CORSMiddleware,
@@ -15,25 +28,219 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# -------------------------
-# Login Request Model
-# -------------------------
+
+# =========================================================
+# DATABASE INITIALIZATION
+# =========================================================
+
+def init_database():
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    # -----------------------------------------------------
+    # MINES
+    # -----------------------------------------------------
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS mines (
+            id SERIAL PRIMARY KEY,
+            name VARCHAR(255) NOT NULL,
+            location VARCHAR(255),
+            status VARCHAR(50) DEFAULT 'ACTIVE'
+        );
+    """)
+
+    # -----------------------------------------------------
+    # USERS
+    # -----------------------------------------------------
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            id SERIAL PRIMARY KEY,
+            name VARCHAR(255) NOT NULL,
+            email VARCHAR(255) UNIQUE NOT NULL,
+            password_hash VARCHAR(255) NOT NULL,
+            role VARCHAR(50) DEFAULT 'INSPECTOR',
+            mine_id INTEGER REFERENCES mines(id)
+        );
+    """)
+
+    # -----------------------------------------------------
+    # INSPECTIONS
+    # -----------------------------------------------------
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS inspections (
+            id SERIAL PRIMARY KEY,
+            mine_id INTEGER REFERENCES mines(id),
+            inspector_id INTEGER REFERENCES users(id),
+            type VARCHAR(100),
+            description TEXT,
+            latitude DOUBLE PRECISION,
+            longitude DOUBLE PRECISION,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+    """)
+
+    # -----------------------------------------------------
+    # VIOLATIONS
+    # -----------------------------------------------------
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS violations (
+            id SERIAL PRIMARY KEY,
+            inspection_id INTEGER REFERENCES inspections(id),
+            mine_id INTEGER REFERENCES mines(id),
+            type VARCHAR(100),
+            severity VARCHAR(50),
+            description TEXT,
+            photo_url TEXT,
+            latitude DOUBLE PRECISION,
+            longitude DOUBLE PRECISION,
+            status VARCHAR(50) DEFAULT 'OPEN',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+    """)
+
+    # -----------------------------------------------------
+    # RISK SCORES
+    # -----------------------------------------------------
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS risk_scores (
+            id SERIAL PRIMARY KEY,
+            mine_id INTEGER REFERENCES mines(id),
+            score NUMERIC,
+            level VARCHAR(50),
+            reasons TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+    """)
+
+    # -----------------------------------------------------
+    # NOTIFICATIONS
+    # -----------------------------------------------------
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS notifications (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER REFERENCES users(id),
+            type VARCHAR(100),
+            message TEXT,
+            read_status BOOLEAN DEFAULT FALSE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+    """)
+
+    # -----------------------------------------------------
+    # ENVIRONMENTAL RECORDS
+    # -----------------------------------------------------
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS environmental_records (
+            id SERIAL PRIMARY KEY,
+            mine_id INTEGER REFERENCES mines(id),
+            parameter VARCHAR(100),
+            value DOUBLE PRECISION,
+            unit VARCHAR(50),
+            threshold DOUBLE PRECISION,
+            status VARCHAR(50) DEFAULT 'NORMAL',
+            description TEXT,
+            recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+    """)
+
+    # -----------------------------------------------------
+    # DEMO MINE
+    # -----------------------------------------------------
+
+    cursor.execute("""
+        INSERT INTO mines
+            (name, location, status)
+        SELECT
+            'Dharmaband Central Coal Mine',
+            'Jharia Coalfield, Dhanbad, Jharkhand',
+            'ACTIVE'
+        WHERE NOT EXISTS (
+            SELECT 1
+            FROM mines
+            WHERE name = 'Dharmaband Central Coal Mine'
+        );
+    """)
+
+    # -----------------------------------------------------
+    # DEMO ADMIN USER
+    # -----------------------------------------------------
+
+    cursor.execute("""
+        INSERT INTO users
+            (name, email, password_hash, role, mine_id)
+        SELECT
+            'Admin User',
+            'admin@coalguard.ai',
+            'admin123',
+            'ADMIN',
+            (
+                SELECT id
+                FROM mines
+                WHERE name = 'Dharmaband Central Coal Mine'
+                LIMIT 1
+            )
+        WHERE NOT EXISTS (
+            SELECT 1
+            FROM users
+            WHERE email = 'admin@coalguard.ai'
+        );
+    """)
+
+    conn.commit()
+
+    cursor.close()
+    conn.close()
+
+
+# =========================================================
+# STARTUP
+# =========================================================
+
+@app.on_event("startup")
+def startup_event():
+
+    try:
+        init_database()
+        print("Database initialized successfully.")
+
+    except Exception as e:
+        print("Database initialization failed:", e)
+
+
+# =========================================================
+# LOGIN REQUEST MODEL
+# =========================================================
+
 class LoginRequest(BaseModel):
     email: str
     password: str
 
 
-# -------------------------
-# Home API
-# -------------------------
+# =========================================================
+# HEALTH API
+# =========================================================
+
 @app.get("/api/health")
 def health():
-    return {"status": "ok", "service": "CoalGuard AI"}
+
+    return {
+        "status": "ok",
+        "service": "CoalGuard AI"
+    }
 
 
-# -------------------------
-# Login API
-# -------------------------
+# =========================================================
+# LOGIN API
+# =========================================================
+
 @app.post("/api/auth/login")
 def login(data: LoginRequest):
 
@@ -41,10 +248,18 @@ def login(data: LoginRequest):
     cursor = conn.cursor()
 
     cursor.execute("""
-        SELECT id, name, role, mine_id
+        SELECT
+            id,
+            name,
+            role,
+            mine_id
         FROM users
-        WHERE email = %s AND password_hash = %s
-    """, (data.email, data.password))
+        WHERE email = %s
+        AND password_hash = %s
+    """, (
+        data.email,
+        data.password
+    ))
 
     user = cursor.fetchone()
 
@@ -52,6 +267,7 @@ def login(data: LoginRequest):
     conn.close()
 
     if not user:
+
         raise HTTPException(
             status_code=401,
             detail="Invalid email or password"
@@ -68,9 +284,10 @@ def login(data: LoginRequest):
     }
 
 
-# -------------------------
-# Get Mines API
-# -------------------------
+# =========================================================
+# GET MINES
+# =========================================================
+
 @app.get("/api/mines")
 def get_mines():
 
@@ -78,7 +295,11 @@ def get_mines():
     cursor = conn.cursor()
 
     cursor.execute("""
-        SELECT id, name, location, status
+        SELECT
+            id,
+            name,
+            location,
+            status
         FROM mines
         ORDER BY id
     """)
@@ -100,10 +321,13 @@ def get_mines():
         ]
     }
 
-from pydantic import BaseModel
 
+# =========================================================
+# INSPECTION REQUEST MODEL
+# =========================================================
 
 class InspectionRequest(BaseModel):
+
     mine_id: int
     inspector_id: int
     type: str
@@ -111,6 +335,10 @@ class InspectionRequest(BaseModel):
     latitude: float | None = None
     longitude: float | None = None
 
+
+# =========================================================
+# CREATE INSPECTION
+# =========================================================
 
 @app.post("/api/inspections")
 def create_inspection(data: InspectionRequest):
@@ -120,7 +348,14 @@ def create_inspection(data: InspectionRequest):
 
     cursor.execute("""
         INSERT INTO inspections
-        (mine_id, inspector_id, type, description, latitude, longitude)
+        (
+            mine_id,
+            inspector_id,
+            type,
+            description,
+            latitude,
+            longitude
+        )
         VALUES (%s, %s, %s, %s, %s, %s)
         RETURNING id
     """, (
@@ -143,10 +378,14 @@ def create_inspection(data: InspectionRequest):
         "message": "Inspection created successfully",
         "inspection_id": inspection_id
     }
-# -------------------------
-# Violation Request Model
-# -------------------------
+
+
+# =========================================================
+# VIOLATION REQUEST MODEL
+# =========================================================
+
 class ViolationRequest(BaseModel):
+
     inspection_id: int
     mine_id: int
     type: str
@@ -157,9 +396,10 @@ class ViolationRequest(BaseModel):
     longitude: float | None = None
 
 
-# -------------------------
-# Create Violation API
-# -------------------------
+# =========================================================
+# CREATE VIOLATION
+# =========================================================
+
 @app.post("/api/violations")
 def create_violation(data: ViolationRequest):
 
@@ -204,25 +444,28 @@ def create_violation(data: ViolationRequest):
         "status": "OPEN"
     }
 
-# -------------------------
-# Risk Score API
-# -------------------------
+
+# =========================================================
+# RISK SCORE API
+# =========================================================
+
 @app.get("/api/risk/{mine_id}")
 def calculate_risk(mine_id: int):
 
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    # Get all violations for this mine
     cursor.execute("""
-        SELECT severity, type, status
+        SELECT
+            severity,
+            type,
+            status
         FROM violations
         WHERE mine_id = %s
     """, (mine_id,))
 
     violations = cursor.fetchall()
 
-    # Calculate risk score
     score = 0
     reasons = []
 
@@ -233,41 +476,53 @@ def calculate_risk(mine_id: int):
         status = violation[2]
 
         if severity == "HIGH":
+
             score += 40
+
             reasons.append(
                 f"High severity violation: {violation_type}"
             )
 
         elif severity == "MEDIUM":
+
             score += 20
 
         elif severity == "LOW":
+
             score += 10
 
-        # Extra risk for an unresolved violation
         if status == "OPEN":
+
             score += 10
+
             reasons.append(
                 f"Open violation: {violation_type}"
             )
 
-    # Maximum score = 100
     score = min(score, 100)
 
-    # Determine risk level
     if score <= 30:
+
         level = "LOW"
+
     elif score <= 60:
+
         level = "MEDIUM"
+
     else:
+
         level = "HIGH"
 
     reason_text = "; ".join(reasons)
 
-    # Save risk score
     cursor.execute("""
         INSERT INTO risk_scores
-        (mine_id, score, level, reasons)
+        (
+            mine_id,
+            score,
+            level,
+            reasons
+        )
         VALUES (%s, %s, %s, %s)
         RETURNING id
     """, (
@@ -291,14 +546,22 @@ def calculate_risk(mine_id: int):
         "level": level,
         "reasons": reasons
     }
-# -------------------------
-# Manager Alert API
-# -------------------------
+
+
+# =========================================================
+# ALERT REQUEST
+# =========================================================
+
 class AlertRequest(BaseModel):
+
     user_id: int
     message: str
     type: str = "HIGH_RISK"
 
+
+# =========================================================
+# CREATE ALERT
+# =========================================================
 
 @app.post("/api/alerts")
 def create_alert(data: AlertRequest):
@@ -308,7 +571,11 @@ def create_alert(data: AlertRequest):
 
     cursor.execute("""
         INSERT INTO notifications
-        (user_id, type, message)
+        (
+            user_id,
+            type,
+            message
+        )
         VALUES (%s, %s, %s)
         RETURNING id
     """, (
@@ -329,10 +596,14 @@ def create_alert(data: AlertRequest):
         "alert_id": alert_id,
         "read_status": False
     }
-# -------------------------
-# Environmental Record Request
-# -------------------------
+
+
+# =========================================================
+# ENVIRONMENTAL REQUEST
+# =========================================================
+
 class EnvironmentalRequest(BaseModel):
+
     mine_id: int
     parameter: str
     value: float
@@ -342,9 +613,10 @@ class EnvironmentalRequest(BaseModel):
     description: str = ""
 
 
-# -------------------------
-# Create Environmental Record
-# -------------------------
+# =========================================================
+# CREATE ENVIRONMENTAL RECORD
+# =========================================================
+
 @app.post("/api/environmental")
 def create_environmental_record(data: EnvironmentalRequest):
 
@@ -388,9 +660,10 @@ def create_environmental_record(data: EnvironmentalRequest):
     }
 
 
-# -------------------------
-# Get Environmental Records
-# -------------------------
+# =========================================================
+# GET ENVIRONMENTAL RECORDS
+# =========================================================
+
 @app.get("/api/environmental/{mine_id}")
 def get_environmental_records(mine_id: int):
 
@@ -425,7 +698,11 @@ def get_environmental_records(mine_id: int):
                 "parameter": record[1],
                 "value": float(record[2]),
                 "unit": record[3],
-                "threshold": float(record[4]) if record[4] is not None else None,
+                "threshold": (
+                    float(record[4])
+                    if record[4] is not None
+                    else None
+                ),
                 "status": record[5],
                 "description": record[6],
                 "recorded_at": record[7]
@@ -433,9 +710,12 @@ def get_environmental_records(mine_id: int):
             for record in records
         ]
     }
-# -------------------------
-# Environmental Risk API
-# -------------------------
+
+
+# =========================================================
+# ENVIRONMENTAL RISK
+# =========================================================
+
 @app.get("/api/environmental-risk/{mine_id}")
 def environmental_risk(mine_id: int):
 
@@ -443,7 +723,9 @@ def environmental_risk(mine_id: int):
     cursor = conn.cursor()
 
     cursor.execute("""
-        SELECT parameter, status
+        SELECT
+            parameter,
+            status
         FROM environmental_records
         WHERE mine_id = %s
     """, (mine_id,))
@@ -454,6 +736,7 @@ def environmental_risk(mine_id: int):
     conn.close()
 
     if not records:
+
         return {
             "mine_id": mine_id,
             "environmental_score": 0,
@@ -474,10 +757,10 @@ def environmental_risk(mine_id: int):
 
             breach_count += 1
 
-            parameter_breaches[parameter] = \
+            parameter_breaches[parameter] = (
                 parameter_breaches.get(parameter, 0) + 1
+            )
 
-    # Risk based on number of breaches
     if breach_count >= 4:
 
         score += 60
@@ -502,7 +785,6 @@ def environmental_risk(mine_id: int):
             "Environmental compliance breach"
         )
 
-    # Extra risk for repeated same parameter
     for parameter, count in parameter_breaches.items():
 
         if count >= 2:
@@ -515,14 +797,16 @@ def environmental_risk(mine_id: int):
 
     score = min(score, 100)
 
-    # Risk level
     if score <= 30:
+
         level = "LOW"
 
     elif score <= 60:
+
         level = "MEDIUM"
 
     else:
+
         level = "HIGH"
 
     return {
@@ -532,21 +816,27 @@ def environmental_risk(mine_id: int):
         "breach_count": breach_count,
         "reasons": reasons
     }
-# -------------------------
-# Combined Safety + Environmental Risk API
-# -------------------------
+
+
+# =========================================================
+# COMBINED RISK
+# =========================================================
+
 @app.get("/api/risk/combined/{mine_id}")
 def combined_risk(mine_id: int):
 
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    # =========================
+    # =====================================================
     # SAFETY RISK
-    # =========================
+    # =====================================================
 
     cursor.execute("""
-        SELECT severity, type, status
+        SELECT
+            severity,
+            type,
+            status
         FROM violations
         WHERE mine_id = %s
     """, (mine_id,))
@@ -563,6 +853,7 @@ def combined_risk(mine_id: int):
         status = violation[2]
 
         if severity == "HIGH":
+
             safety_score += 40
 
             safety_reasons.append(
@@ -570,37 +861,44 @@ def combined_risk(mine_id: int):
             )
 
         elif severity == "MEDIUM":
+
             safety_score += 20
 
         elif severity == "LOW":
+
             safety_score += 10
 
-        if status == "OPEN":
+        if status in ("OPEN", "IN_PROGRESS"):
+
             safety_score += 10
 
             safety_reasons.append(
-                f"Open violation: {violation_type}"
+                f"Unresolved violation: {violation_type}"
             )
 
     safety_score = min(safety_score, 100)
 
-    # Safety level
-    if safety_score <= 30:
+    if safety_score < 35:
+
         safety_level = "LOW"
 
-    elif safety_score <= 60:
+    elif safety_score < 70:
+
         safety_level = "MEDIUM"
 
     else:
+
         safety_level = "HIGH"
 
 
-    # =========================
+    # =====================================================
     # ENVIRONMENTAL RISK
-    # =========================
+    # =====================================================
 
     cursor.execute("""
-        SELECT parameter, status
+        SELECT
+            parameter,
+            status
         FROM environmental_records
         WHERE mine_id = %s
     """, (mine_id,))
@@ -611,85 +909,113 @@ def combined_risk(mine_id: int):
     environmental_reasons = []
 
     breach_count = 0
-    parameter_breaches = {}
+    warning_count = 0
 
     for parameter, status in environmental_records:
 
-        if status == "BREACH":
+        if status == "CRITICAL":
 
-            breach_count += 1
-
-            parameter_breaches[parameter] = \
-                parameter_breaches.get(parameter, 0) + 1
-
-
-    # Environmental breach risk
-    if breach_count >= 4:
-
-        environmental_score += 60
-
-        environmental_reasons.append(
-            "Multiple environmental compliance breaches"
-        )
-
-    elif breach_count >= 2:
-
-        environmental_score += 40
-
-        environmental_reasons.append(
-            "Repeated environmental breaches"
-        )
-
-    elif breach_count == 1:
-
-        environmental_score += 25
-
-        environmental_reasons.append(
-            "Environmental compliance breach"
-        )
-
-
-    # Repeated environmental parameter
-    for parameter, count in parameter_breaches.items():
-
-        if count >= 2:
-
-            environmental_score += 10
+            environmental_score += 30
 
             environmental_reasons.append(
-                f"Repeated {parameter} issue"
+                f"Critical environmental reading: {parameter}"
+            )
+
+        elif status == "WARNING":
+
+            environmental_score += 15
+
+            environmental_reasons.append(
+                f"Warning environmental reading: {parameter}"
             )
 
     environmental_score = min(environmental_score, 100)
 
+    if environmental_score < 35:
 
-    # Environmental level
-    if environmental_score <= 30:
         environmental_level = "LOW"
 
-    elif environmental_score <= 60:
+    elif environmental_score < 70:
+
         environmental_level = "MEDIUM"
 
     else:
+
         environmental_level = "HIGH"
 
 
-    # =========================
+    # =====================================================
+    # COMPLIANCE RISK
+    # =====================================================
+
+    compliance_score = 0
+
+    compliance_reasons = []
+
+    # Open / in-progress violations
+    for violation in violations:
+
+        status = violation[2]
+
+        if status in ("OPEN", "IN_PROGRESS"):
+
+            compliance_score += 10
+
+    # Incomplete inspections
+    cursor.execute("""
+        SELECT COUNT(*)
+        FROM inspections i
+        WHERE i.mine_id = %s
+        AND NOT EXISTS (
+            SELECT 1
+            FROM violations v
+            WHERE v.inspection_id = i.id
+        )
+    """, (mine_id,))
+
+    incomplete_inspections = cursor.fetchone()[0]
+
+    compliance_score += incomplete_inspections * 20
+
+    compliance_score = min(compliance_score, 100)
+
+    if compliance_score < 35:
+
+        compliance_level = "LOW"
+
+    elif compliance_score < 70:
+
+        compliance_level = "MEDIUM"
+
+    else:
+
+        compliance_level = "HIGH"
+
+
+    # =====================================================
     # OVERALL RISK
-    # =========================
+    # =====================================================
 
     overall_score = round(
-        (safety_score * 0.60) +
         (environmental_score * 0.40)
+        +
+        (safety_score * 0.40)
+        +
+        (compliance_score * 0.20)
     )
 
-    if overall_score <= 30:
+    overall_score = min(overall_score, 100)
+
+    if overall_score < 35:
+
         overall_level = "LOW"
 
-    elif overall_score <= 60:
+    elif overall_score < 70:
+
         overall_level = "MEDIUM"
 
     else:
+
         overall_level = "HIGH"
 
 
@@ -697,19 +1023,13 @@ def combined_risk(mine_id: int):
     conn.close()
 
 
-    # =========================
+    # =====================================================
     # FINAL RESPONSE
-    # =========================
+    # =====================================================
 
     return {
 
         "mine_id": mine_id,
-
-        "safety": {
-            "score": safety_score,
-            "level": safety_level,
-            "reasons": safety_reasons
-        },
 
         "environment": {
             "score": environmental_score,
@@ -718,14 +1038,37 @@ def combined_risk(mine_id: int):
             "reasons": environmental_reasons
         },
 
+        "safety": {
+            "score": safety_score,
+            "level": safety_level,
+            "reasons": safety_reasons
+        },
+
+        "compliance": {
+            "score": compliance_score,
+            "level": compliance_level,
+            "incomplete_inspections": incomplete_inspections,
+            "reasons": compliance_reasons
+        },
+
         "overall": {
             "score": overall_score,
             "level": overall_level
         }
     }
 
+
 # =========================================================
-# Serve the responsive frontend from the same backend URL
+# SERVE FRONTEND
 # =========================================================
+
 FRONTEND_DIR = Path(__file__).resolve().parent.parent / "frontend"
-app.mount("/", StaticFiles(directory=str(FRONTEND_DIR), html=True), name="frontend")
+
+app.mount(
+    "/",
+    StaticFiles(
+        directory=str(FRONTEND_DIR),
+        html=True
+    ),
+    name="frontend"
+)
