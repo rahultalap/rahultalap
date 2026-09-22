@@ -170,80 +170,61 @@ def init_database():
     """)
 
 # -----------------------------------------------------
-    # DEMO ADMIN USER
+    # DEMO USERS
     # -----------------------------------------------------
 
     cursor.execute("""
-        INSERT INTO users
-            (name, email, password_hash, role, mine_id)
-        SELECT
+        INSERT INTO users (name, email, password_hash, role, mine_id)
+        VALUES (
             'Admin User',
             'admin@coalguard.com',
             'admin123',
             'ADMIN',
-            (
-                SELECT id
-                FROM mines
-                WHERE name = 'Dharmaband Central Coal Mine'
-                LIMIT 1
-            )
-        WHERE NOT EXISTS (
-            SELECT 1
-            FROM users
-            WHERE email = 'admin@coalguard.com'
-        );
+            (SELECT id FROM mines
+             WHERE name = 'Dharmaband Central Coal Mine'
+             LIMIT 1)
+        )
+        ON CONFLICT (email)
+        DO UPDATE SET
+            password_hash = EXCLUDED.password_hash,
+            role = EXCLUDED.role,
+            mine_id = EXCLUDED.mine_id;
     """)
 
-
-    # -----------------------------------------------------
-    # DEMO MANAGER USER
-    # -----------------------------------------------------
-
     cursor.execute("""
-        INSERT INTO users
-            (name, email, password_hash, role, mine_id)
-        SELECT
+        INSERT INTO users (name, email, password_hash, role, mine_id)
+        VALUES (
             'Mine Manager',
             'manager@coalguard.com',
             'manager123',
             'MANAGER',
-            (
-                SELECT id
-                FROM mines
-                WHERE name = 'Dharmaband Central Coal Mine'
-                LIMIT 1
-            )
-        WHERE NOT EXISTS (
-            SELECT 1
-            FROM users
-            WHERE email = 'manager@coalguard.com'
-        );
+            (SELECT id FROM mines
+             WHERE name = 'Dharmaband Central Coal Mine'
+             LIMIT 1)
+        )
+        ON CONFLICT (email)
+        DO UPDATE SET
+            password_hash = EXCLUDED.password_hash,
+            role = EXCLUDED.role,
+            mine_id = EXCLUDED.mine_id;
     """)
 
-
-    # -----------------------------------------------------
-    # DEMO INSPECTOR USER
-    # -----------------------------------------------------
-
     cursor.execute("""
-        INSERT INTO users
-            (name, email, password_hash, role, mine_id)
-        SELECT
+        INSERT INTO users (name, email, password_hash, role, mine_id)
+        VALUES (
             'Rahul Inspector',
             'inspector@coalguard.com',
             'inspector123',
             'INSPECTOR',
-            (
-                SELECT id
-                FROM mines
-                WHERE name = 'Dharmaband Central Coal Mine'
-                LIMIT 1
-            )
-        WHERE NOT EXISTS (
-            SELECT 1
-            FROM users
-            WHERE email = 'inspector@coalguard.com'
-        );
+            (SELECT id FROM mines
+             WHERE name = 'Dharmaband Central Coal Mine'
+             LIMIT 1)
+        )
+        ON CONFLICT (email)
+        DO UPDATE SET
+            password_hash = EXCLUDED.password_hash,
+            role = EXCLUDED.role,
+            mine_id = EXCLUDED.mine_id;
     """)
 
     conn.commit()
