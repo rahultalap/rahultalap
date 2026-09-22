@@ -169,86 +169,86 @@ def init_database():
         );
     """)
 
-   # -----------------------------------------------------
-# DEMO ADMIN USER
 # -----------------------------------------------------
+    # DEMO ADMIN USER
+    # -----------------------------------------------------
 
-cursor.execute("""
-    INSERT INTO users
-        (name, email, password_hash, role, mine_id)
-    SELECT
-        'Admin User',
-        'admin@coalguard.ai',
-        'admin123',
-        'ADMIN',
-        (
-            SELECT id
-            FROM mines
-            WHERE name = 'Dharmaband Central Coal Mine'
-            LIMIT 1
-        )
-    WHERE NOT EXISTS (
-        SELECT 1
-        FROM users
-        WHERE email = 'admin@coalguard.ai'
-    );
-""")
-
-
-# -----------------------------------------------------
-# DEMO MANAGER USER
-# -----------------------------------------------------
-
-cursor.execute("""
-    INSERT INTO users
-        (name, email, password_hash, role, mine_id)
-    SELECT
-        'Mine Manager',
-        'manager@coalguard.com',
-        'demo123',
-        'MANAGER',
-        (
-            SELECT id
-            FROM mines
-            WHERE name = 'Dharmaband Central Coal Mine'
-            LIMIT 1
-        )
-    WHERE NOT EXISTS (
-        SELECT 1
-        FROM users
-        WHERE email = 'manager@coalguard.com'
-    );
-""")
+    cursor.execute("""
+        INSERT INTO users
+            (name, email, password_hash, role, mine_id)
+        SELECT
+            'Admin User',
+            'admin@coalguard.ai',
+            'admin123',
+            'ADMIN',
+            (
+                SELECT id
+                FROM mines
+                WHERE name = 'Dharmaband Central Coal Mine'
+                LIMIT 1
+            )
+        WHERE NOT EXISTS (
+            SELECT 1
+            FROM users
+            WHERE email = 'admin@coalguard.ai'
+        );
+    """)
 
 
-# -----------------------------------------------------
-# DEMO INSPECTOR USER
-# -----------------------------------------------------
+    # -----------------------------------------------------
+    # DEMO MANAGER USER
+    # -----------------------------------------------------
 
-cursor.execute("""
-    INSERT INTO users
-        (name, email, password_hash, role, mine_id)
-    SELECT
-        'Rahul Inspector',
-        'inspector@coalguard.com',
-        'inspector123',
-        'INSPECTOR',
-        (
-            SELECT id
-            FROM mines
-            WHERE name = 'Dharmaband Central Coal Mine'
-            LIMIT 1
-        )
-    WHERE NOT EXISTS (
-        SELECT 1
-        FROM users
-        WHERE email = 'inspector@coalguard.com'
-    );
-""")
+    cursor.execute("""
+        INSERT INTO users
+            (name, email, password_hash, role, mine_id)
+        SELECT
+            'Mine Manager',
+            'manager@coalguard.com',
+            'demo123',
+            'MANAGER',
+            (
+                SELECT id
+                FROM mines
+                WHERE name = 'Dharmaband Central Coal Mine'
+                LIMIT 1
+            )
+        WHERE NOT EXISTS (
+            SELECT 1
+            FROM users
+            WHERE email = 'manager@coalguard.com'
+        );
+    """)
 
-conn.commit()
-cursor.close()
-conn.close()
+
+    # -----------------------------------------------------
+    # DEMO INSPECTOR USER
+    # -----------------------------------------------------
+
+    cursor.execute("""
+        INSERT INTO users
+            (name, email, password_hash, role, mine_id)
+        SELECT
+            'Rahul Inspector',
+            'inspector@coalguard.com',
+            'inspector123',
+            'INSPECTOR',
+            (
+                SELECT id
+                FROM mines
+                WHERE name = 'Dharmaband Central Coal Mine'
+                LIMIT 1
+            )
+        WHERE NOT EXISTS (
+            SELECT 1
+            FROM users
+            WHERE email = 'inspector@coalguard.com'
+        );
+    """)
+
+    conn.commit()
+    cursor.close()
+    conn.close()
 
 # =========================================================
 # STARTUP
