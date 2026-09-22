@@ -245,11 +245,9 @@ cursor.execute("""
         WHERE email = 'inspector@coalguard.com'
     );
     """)
-
-        conn.commit()
-
-        cursor.close()
-        conn.close()
+    conn.commit()
+    cursor.close()
+    conn.close()
 
 
 # =========================================================
