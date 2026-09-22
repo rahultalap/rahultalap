@@ -178,7 +178,7 @@ def init_database():
             (name, email, password_hash, role, mine_id)
         SELECT
             'Admin User',
-            'admin@coalguard.ai',
+            'admin@coalguard.com',
             'admin123',
             'ADMIN',
             (
@@ -205,7 +205,7 @@ def init_database():
         SELECT
             'Mine Manager',
             'manager@coalguard.com',
-            'demo123',
+            'manager123',
             'MANAGER',
             (
                 SELECT id
