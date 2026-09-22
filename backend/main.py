@@ -244,12 +244,12 @@ cursor.execute("""
         FROM users
         WHERE email = 'inspector@coalguard.com'
     );
-""")
+    """)
 
-    conn.commit()
+        conn.commit()
 
-    cursor.close()
-    conn.close()
+        cursor.close()
+        conn.close()
 
 
 # =========================================================
