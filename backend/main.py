@@ -190,7 +190,7 @@ def init_database():
         WHERE NOT EXISTS (
             SELECT 1
             FROM users
-            WHERE email = 'admin@coalguard.ai'
+            WHERE email = 'admin@coalguard.com'
         );
     """)
 
